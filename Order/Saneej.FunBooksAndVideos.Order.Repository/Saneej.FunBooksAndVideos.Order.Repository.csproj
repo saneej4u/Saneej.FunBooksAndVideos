@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Saneej.FunBooksAndVideos.Data\Saneej.FunBooksAndVideos.Order.Data.csproj" />
+    <ProjectReference Include="..\Saneej.FunBooksAndVideos.Order.Data\Saneej.FunBooksAndVideos.Order.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>

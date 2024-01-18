@@ -7,10 +7,12 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>    
+	
+    <ItemGroup>
+    <ProjectReference Include="..\Saneej.FunBooksAndVideos.Product.Service\Saneej.FunBooksAndVideos.Product.Service.csproj" />
   </ItemGroup>
+	
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Saneej.FunBooksAndVideos.Product.Service\Saneej.FunBooksAndVideos.Product.Service.csproj" />
-  </ItemGroup>
 
 </Project>
