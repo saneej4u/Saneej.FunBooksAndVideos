@@ -4,6 +4,6 @@ namespace Saneej.FunBooksAndVideos.Service.Mappers
 {
     public interface IPurchaseOrderMapper
     {
-        PurchaseOrderResponse MapOrderDetailsFromEntity(Data.Entities.PurchaseOrder purchaseOrderEntity);
+        PurchaseOrderResponse MapToPurchaseOrderResponseFromEntity(Data.Entities.PurchaseOrder purchaseOrderEntity);
     }
 }

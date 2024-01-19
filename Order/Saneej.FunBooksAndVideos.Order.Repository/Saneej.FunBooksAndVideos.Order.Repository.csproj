@@ -10,8 +10,4 @@
     <ProjectReference Include="..\Saneej.FunBooksAndVideos.Order.Data\Saneej.FunBooksAndVideos.Order.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Queries\" />
-  </ItemGroup>
-
 </Project>

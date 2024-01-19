@@ -1,4 +1,7 @@
-﻿namespace Saneej.FunBooksAndVideos.Data.Entities
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Saneej.FunBooksAndVideos.Data.Entities
 {
     public class PurchaseOrder : EntityBase
     {
@@ -6,6 +9,9 @@
         {
             PurchaseOrderLines = new HashSet<PurchaseOrderLine>();
         }
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PurchaseOrderId { get; set; }
         public string PurchaseOrderNumber { get; set; }
         public int CustomerId { get; set; }

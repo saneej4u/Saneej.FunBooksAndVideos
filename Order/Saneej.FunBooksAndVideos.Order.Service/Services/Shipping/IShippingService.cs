@@ -2,6 +2,6 @@
 {
     public interface IShippingService
     {
-        public bool GenerateShippingSlip(int customerId, int orderId);
+        Task<bool> GenerateShippingSlip(int customerId, int orderId);
     }
 }

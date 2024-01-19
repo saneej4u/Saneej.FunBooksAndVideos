@@ -2,6 +2,6 @@
 {
     public interface ICustomerService
     {
-        public bool ActivateMembership(int customerId, string membershipCode);
+        public Task<bool> ActivateMembership(int customerId, int orderId);
     }
 }

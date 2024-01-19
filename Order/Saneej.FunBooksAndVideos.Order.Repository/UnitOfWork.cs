@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using Saneej.FunBooksAndVideos.Data.Context;
+using Saneej.FunBooksAndVideos.Order.Repository.Queries.PurchaseOrder;
 using Saneej.FunBooksAndVideos.Repository.Commands;
 
 namespace Saneej.FunBooksAndVideos.Repository
@@ -10,11 +11,11 @@ namespace Saneej.FunBooksAndVideos.Repository
         {
             Context = context;
             PurchaseOrderCommandRepository = new PurchaseOrderCommandRepository(context.PurchaseOrders);
-            //ProductQueryRepository = new ProductQueryRepository(context.Products);
+            PurchaseOrderQueryRepository = new PurchaseOrderQueryRepository(context.PurchaseOrders);
         }
         public FunBooksAndVideosContext ReadContext => Context;
         public IPurchaseOrderCommandRepository PurchaseOrderCommandRepository { get; }
-        //public IProductQueryRepository ProductQueryRepository { get; }
+        public IPurchaseOrderQueryRepository PurchaseOrderQueryRepository { get; }
         protected FunBooksAndVideosContext Context { get; }
         public DatabaseFacade Database()
         {

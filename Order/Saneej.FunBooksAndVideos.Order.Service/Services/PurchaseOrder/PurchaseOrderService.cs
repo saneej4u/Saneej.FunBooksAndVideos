@@ -35,7 +35,7 @@ namespace Saneej.FunBooksAndVideos.Service.PurchaseOrder
         {
             if (basket == null)
             {
-                return ResponseWrapper.CreateNotFoundError();
+                return ResponseWrapper.CreateNotFoundError("Invalid call - no basket exist");
             }
 
             if (!basket.BasketItems.Any())
@@ -54,12 +54,12 @@ namespace Saneej.FunBooksAndVideos.Service.PurchaseOrder
 
                 foreach (var basketItem in basket.BasketItems)
                 {
-                    var productItem = products.FirstOrDefault(x => x.ProductId == basketItem.ProductId);
+                    var product = products.FirstOrDefault(x => x.ProductId == basketItem.ProductId);
 
-                    if (productItem != null)
+                    if (product != null)
                     {
-                        var orderItem = productItem.ToPurchaseOrderLineModel(basketItem.Quantity);
-                        purchaseOrderLines.Add(orderItem);
+                        var orderLine = product.ToPurchaseOrderLineModel(basketItem.Quantity); // TODO: Convert to mapper
+                        purchaseOrderLines.Add(orderLine);
                     }
                 }
 
@@ -68,7 +68,7 @@ namespace Saneej.FunBooksAndVideos.Service.PurchaseOrder
                     return ResponseWrapper.CreateClientError("Products are out of stock.");
                 }
 
-                // Create an Order
+                // TODO: Create an Order - Covert to mapper
                 var orderEntity = purchaseOrderLines.ToCreateOrderModel(basket.CustomerId);
 
                 await _unitOfWork.PurchaseOrderCommandRepository.AddOrder(orderEntity);
@@ -77,38 +77,20 @@ namespace Saneej.FunBooksAndVideos.Service.PurchaseOrder
 
                 _unitOfWork.CommitTransaction();
 
-                var order = _purchaseOrderMapper.MapOrderDetailsFromEntity(orderEntity);
-
                 // BR1.If the purchase order contains a membership, it has to be activated in the customer account immediately.
-                var purchasedMemberShip = order.PurchaseOrderLines
-                                                .FirstOrDefault(p => GetMembershipCodes().Contains(p.ProductTypeCode));
-                //Raise an event to activate customer account.
-                if (purchasedMemberShip != null)
-                {
-                    _customerService.ActivateMembership(order.CustomerId, purchasedMemberShip.ProductTypeCode);
-                }
+                await _customerService.ActivateMembership(orderEntity.CustomerId, orderEntity.PurchaseOrderId);
 
                 // BR2.If the purchase order contains a physical product a shipping slip has to be generated.
-                // Raise an event to generate a shipping slip.
-                _shippingService.GenerateShippingSlip(order.CustomerId, order.PurchaseOrderId);
+                await _shippingService.GenerateShippingSlip(orderEntity.CustomerId, orderEntity.PurchaseOrderId);
 
-                return ResponseWrapper.CreateSuccess(order);
+                var purchaseOrderResponse = _purchaseOrderMapper.MapToPurchaseOrderResponseFromEntity(orderEntity);
+                return ResponseWrapper.CreateSuccess(purchaseOrderResponse);
             }
             catch (Exception)
             {
                 _unitOfWork.RollbackTransaction();
                 throw;
             }
-        }
-
-        private static List<string> GetMembershipCodes()
-        {
-            return new List<string>
-                    {
-                        ProductTypeConstants.BOOK_MEMBERSHIP,
-                        ProductTypeConstants.VIDEO_MEMBERSHIP,
-                        ProductTypeConstants.PREMIUM_MEMBERSHIP
-                    };
         }
 
         private async Task<List<ProductViewModel>> GetAllFromProductService<TResponse>(List<BasketItemRequest> basketItems)

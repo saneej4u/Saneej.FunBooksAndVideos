@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NSubstitute;
-using Saneej.FunBooksAndVideos.Data.Entities;
 using Saneej.FunBooksAndVideos.Repository;
 using Saneej.FunBooksAndVideos.Service.Constants;
 using Saneej.FunBooksAndVideos.Service.Customer;
@@ -45,32 +44,107 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
         }
 
         [Test]
-        public async Task ProcessOrder_With_Membership_Activate_Cuustomer()
+        public async Task ProcessOrder_With_Empty_Basket_Returns_NotFoundError()
         {
-            var basketModel = _fixture.Create<BasketRequest>();
-            basketModel.BasketItems.ForEach(bi =>
+            // Act
+            var result = await _sut.ProcessOrder(null);
+
+            // Assert;
+            result.Should().NotBeNull();
+            result.Data.Should().BeNull();
+            
+            result.IsNotFound.Should().BeTrue();
+            result.HasError.Should().BeTrue();
+            result.ErrorMessage.Should().Be("Invalid call - no basket exist");
+
+            result.IsClientError.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task ProcessOrder_With_Empty_BasketItems_Returns_ClientError()
+        {
+            // Act
+            var result = await _sut.ProcessOrder(null);
+
+            // Assert;
+            result.Should().NotBeNull();
+            result.Data.Should().BeNull();
+
+            result.IsNotFound.Should().BeFalse();
+
+            result.HasError.Should().BeTrue();
+            result.ErrorMessage.Should().Be("Basket is empty, cannot process the order");
+            result.IsClientError.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task ProcessOrder_With_Product_NotMatches_BasketItems_Returns_ClientError()
+        {
+            var basketRequest = _fixture.Create<BasketRequest>();
+            var productId = 1;
+            basketRequest.BasketItems.ForEach(bi =>
             {
-                bi.ProductId = 1;
+                bi.ProductId = productId + 1;
             });
+
+            var productViewModels = basketRequest.BasketItems.Select(bi => new ProductViewModel(0, "", "", "", "", 12M, 2, true)).ToList();
+
+            // Mock HTTP Client call
+            _integrationHttpServiceStub.PostAsync<List<ProductViewModel>>(default, default, default).ReturnsForAnyArgs(productViewModels);
+
+            //var codes = new List<string> { ProductTypeConstants.BOOK_MEMBERSHIP, ProductTypeConstants.VIDEO_MEMBERSHIP, ProductTypeConstants.PREMIUM_MEMBERSHIP };
+            //var purchaseOrderLines = _fixture.Build<PurchaseOrderLineResponse>();
+            //var orderLineResponses = codes.Select(x => purchaseOrderLines.With(x => x.ProductTypeCode, x).Create());
+
+            //var purchaseOrderResponse = _fixture.Create<PurchaseOrderResponse>();
+            //purchaseOrderResponse.PurchaseOrderLines.AddRange(orderLineResponses);
+            //_purchaseOrderMapperStub.MapToPurchaseOrderResponseFromEntity(default).ReturnsForAnyArgs(purchaseOrderResponse);
+
+            // Act
+            var result = await _sut.ProcessOrder(basketRequest);
+
+
+            // Assert;
+            result.Should().NotBeNull();
+            result.Data.Should().BeNull();
+
+            result.IsNotFound.Should().BeFalse();
+
+            result.HasError.Should().BeTrue();
+            result.ErrorMessage.Should().Be("Products are out of stock.");
+            result.IsClientError.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task ProcessOrder_With_Default_Basket_Returns_OrderResponse()
+        {
+            var basketRequest = _fixture.Create<BasketRequest>();
+            var productId = 1;
+            basketRequest.BasketItems.ForEach(bi =>
+            {
+                bi.ProductId = productId + 1;
+            });
+
+            var productViewModels = basketRequest.BasketItems.Select(bi => new ProductViewModel(bi.ProductId, "", "", "", "", 12M, 2, true)).ToList();
+
+            // Mock HTTP Client call
+            _integrationHttpServiceStub.PostAsync<List<ProductViewModel>>(default, default, default).ReturnsForAnyArgs(productViewModels);
+
+            var codes = new List<string> { ProductTypeConstants.BOOK_MEMBERSHIP, ProductTypeConstants.VIDEO_MEMBERSHIP, ProductTypeConstants.PREMIUM_MEMBERSHIP };
+            var purchaseOrderLines = _fixture.Build<PurchaseOrderLineResponse>();
+            var orderLineResponses = codes.Select(x => purchaseOrderLines.With(x => x.ProductTypeCode, x).Create());
+
             var purchaseOrderResponse = _fixture.Create<PurchaseOrderResponse>();
+            purchaseOrderResponse.PurchaseOrderLines.AddRange(orderLineResponses);
+            _purchaseOrderMapperStub.MapToPurchaseOrderResponseFromEntity(default).ReturnsForAnyArgs(purchaseOrderResponse);
 
-            var path = "";
-            var baseUrl = "";
-            var productIds = basketModel.BasketItems.Select(b => b.ProductId).ToList();
-            _integrationHttpServiceStub.PostAsync<List<ProductViewModel>>($"{baseUrl}/{path}", productIds).ReturnsForAnyArgs(new List<ProductViewModel>
-            {
-                new ProductViewModel (1, "","","", ProductTypeConstants.BOOK_MEMBERSHIP, 12M,2,true)
-            });
+            // Act
+            var result = await _sut.ProcessOrder(basketRequest);
 
-            _purchaseOrderMapperStub.MapOrderDetailsFromEntity(default).ReturnsForAnyArgs(purchaseOrderResponse);
-
-            var result = await _sut.ProcessOrder(basketModel);
-
+            // Assert;
             result.Should().NotBeNull();
             result.Data.Should().NotBeNull();
-
-            result.Data.PurchaseOrderId.Should().BeGreaterThan(0);
-
+            result.IsNotFound.Should().BeFalse();
             result.IsClientError.Should().BeFalse();
         }
     }

@@ -4,12 +4,11 @@ namespace Saneej.FunBooksAndVideos.Service.Mappers
 {
     public class PurchaseOrderMapper : IPurchaseOrderMapper
     {
-        public PurchaseOrderResponse MapOrderDetailsFromEntity(Data.Entities.PurchaseOrder purchaseOrderEntity)
+        public PurchaseOrderResponse MapToPurchaseOrderResponseFromEntity(Data.Entities.PurchaseOrder purchaseOrderEntity)
         {
             return new PurchaseOrderResponse
             {
                 PurchaseOrderId = purchaseOrderEntity.PurchaseOrderId,
-                PurchaseOrderNumber = purchaseOrderEntity.PurchaseOrderNumber,
                 Status = purchaseOrderEntity.Status,
                 Total = purchaseOrderEntity.Total,
                 CustomerId = purchaseOrderEntity.CustomerId,
