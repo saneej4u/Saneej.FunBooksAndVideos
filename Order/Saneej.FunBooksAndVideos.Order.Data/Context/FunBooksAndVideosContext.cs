@@ -16,7 +16,8 @@ namespace Saneej.FunBooksAndVideos.Data.Context
 
         public virtual DbSet<PurchaseOrder> PurchaseOrders { get; set; }
         public virtual DbSet<PurchaseOrderLine> PurchaseOrderLines { get; set; }
-        //public virtual DbSet<ProductType> ProductTypes { get; set; }
-        //public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<Shipping> Shippings { get; set; }
+        public virtual DbSet<Membership> Memberships { get; set; }
+
     }
 }

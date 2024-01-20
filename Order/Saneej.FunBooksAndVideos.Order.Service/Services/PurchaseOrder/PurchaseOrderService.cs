@@ -1,6 +1,5 @@
 ﻿using Saneej.FunBooksAndVideos.Data.Entities;
-using Saneej.FunBooksAndVideos.Repository;
-using Saneej.FunBooksAndVideos.Service.Constants;
+using Saneej.FunBooksAndVideos.Order.Repository.UnitOfWork;
 using Saneej.FunBooksAndVideos.Service.Customer;
 using Saneej.FunBooksAndVideos.Service.Extensions;
 using Saneej.FunBooksAndVideos.Service.Mappers;
@@ -14,12 +13,12 @@ namespace Saneej.FunBooksAndVideos.Service.PurchaseOrder
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IIntegrationHttpService _integrationHttpService;
-        private readonly ICustomerService _customerService;
+        private readonly IMembershipService _customerService;
         private readonly IShippingService _shippingService;
         private readonly IPurchaseOrderMapper _purchaseOrderMapper;
 
         public PurchaseOrderService(IUnitOfWork unitOfWork,
-            ICustomerService customerService,
+            IMembershipService customerService,
             IIntegrationHttpService integrationHttpService,
             IShippingService shippingService,
             IPurchaseOrderMapper purchaseOrderMapper)
@@ -33,18 +32,18 @@ namespace Saneej.FunBooksAndVideos.Service.PurchaseOrder
 
         public async Task<ResponseWrapper<PurchaseOrderResponse>> ProcessOrder(BasketRequest basket)
         {
-            if (basket == null)
-            {
-                return ResponseWrapper.CreateNotFoundError("Invalid call - no basket exist");
-            }
-
-            if (!basket.BasketItems.Any())
-            {
-                return ResponseWrapper.CreateClientError("Basket is empty, cannot process the order");
-            }
-
             try
             {
+                if (basket == null)
+                {
+                    return ResponseWrapper.CreateNotFoundError("Invalid call - no basket exist");
+                }
+
+                if (basket.BasketItems == null)
+                {
+                    return ResponseWrapper.CreateClientError("Basket is empty, cannot process the order");
+                }
+
                 _unitOfWork.BeginTransaction();
 
                 //Get all the products by id from microservice
@@ -78,9 +77,13 @@ namespace Saneej.FunBooksAndVideos.Service.PurchaseOrder
                 _unitOfWork.CommitTransaction();
 
                 // BR1.If the purchase order contains a membership, it has to be activated in the customer account immediately.
+                // Option 1 : Send a message to ServiceBus, which will be consumed by another Shipping Microservice 
+                // Option 2: See below implementation
                 await _customerService.ActivateMembership(orderEntity.CustomerId, orderEntity.PurchaseOrderId);
 
                 // BR2.If the purchase order contains a physical product a shipping slip has to be generated.
+                // Option 1 : Send a message to ServiceBus, which will be consumed by another Shipping Microservice 
+                // Option 2: See below implementation
                 await _shippingService.GenerateShippingSlip(orderEntity.CustomerId, orderEntity.PurchaseOrderId);
 
                 var purchaseOrderResponse = _purchaseOrderMapper.MapToPurchaseOrderResponseFromEntity(orderEntity);

@@ -7,9 +7,9 @@ namespace Saneej.FunBooksAndVideos.Data.Entities
         protected EntityBase()
         {
             CreatedBy = string.Empty;
-            CreatedOn = new DateTime(1800, 1, 1);
+            CreatedOn = DateTime.UtcNow;
             ModifiedBy = string.Empty;
-            ModifiedOn = new DateTime(1800, 1, 1);
+            ModifiedOn = DateTime.UtcNow;
         }
 
         [Required]

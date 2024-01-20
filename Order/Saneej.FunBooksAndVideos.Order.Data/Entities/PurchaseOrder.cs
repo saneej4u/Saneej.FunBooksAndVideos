@@ -15,7 +15,7 @@ namespace Saneej.FunBooksAndVideos.Data.Entities
         public int PurchaseOrderId { get; set; }
         public string PurchaseOrderNumber { get; set; }
         public int CustomerId { get; set; }
-        public string Status { get; set; } // Paid, Not paid, Cancelled etc.
+        public string Status { get; set; } // Paid, Not paid, Cancelled etc .
         public decimal Total { get; set; }
         public ICollection<PurchaseOrderLine> PurchaseOrderLines { get; set; }
     }

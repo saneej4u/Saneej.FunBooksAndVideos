@@ -1,12 +1,12 @@
-﻿using Saneej.FunBooksAndVideos.Repository;
+﻿using Saneej.FunBooksAndVideos.Order.Repository.UnitOfWork;
 using Saneej.FunBooksAndVideos.Service.Constants;
 
 namespace Saneej.FunBooksAndVideos.Service.Customer
 {
-    public class CustomerService : ICustomerService
+    public class MembershipService : IMembershipService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public CustomerService(IUnitOfWork unitOfWork)
+        public MembershipService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }

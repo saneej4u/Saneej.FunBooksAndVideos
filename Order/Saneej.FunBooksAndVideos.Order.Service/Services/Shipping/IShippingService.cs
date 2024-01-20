@@ -1,7 +1,9 @@
-﻿namespace Saneej.FunBooksAndVideos.Service.Shipping
+﻿using Saneej.FunBooksAndVideos.Service.Models;
+
+namespace Saneej.FunBooksAndVideos.Service.Shipping
 {
     public interface IShippingService
     {
-        Task<bool> GenerateShippingSlip(int customerId, int orderId);
+        Task<ResponseWrapper<bool>> GenerateShippingSlip(int customerId, int orderId);
     }
 }

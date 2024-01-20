@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using NSubstitute;
-using Saneej.FunBooksAndVideos.Repository;
+using Saneej.FunBooksAndVideos.Order.Repository.UnitOfWork;
 using Saneej.FunBooksAndVideos.Service.Constants;
 using Saneej.FunBooksAndVideos.Service.Customer;
 using Saneej.FunBooksAndVideos.Service.Mappers;
@@ -20,7 +20,7 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
 
         private IUnitOfWork _unitOfWorkStub;
         private IIntegrationHttpService _integrationHttpServiceStub;
-        private ICustomerService _customerServiceStub;
+        private IMembershipService _customerServiceStub;
         private IShippingService _shippingServiceStub;
         private IPurchaseOrderMapper _purchaseOrderMapperStub;
 
@@ -31,7 +31,7 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
 
             _unitOfWorkStub = Substitute.For<IUnitOfWork>();
             _integrationHttpServiceStub = Substitute.For<IIntegrationHttpService>();
-            _customerServiceStub = Substitute.For<ICustomerService>();
+            _customerServiceStub = Substitute.For<IMembershipService>();
             _shippingServiceStub = Substitute.For<IShippingService>();
             _purchaseOrderMapperStub = Substitute.For<IPurchaseOrderMapper>();
 
@@ -64,7 +64,7 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
         public async Task ProcessOrder_With_Empty_BasketItems_Returns_ClientError()
         {
             // Act
-            var result = await _sut.ProcessOrder(null);
+            var result = await _sut.ProcessOrder(new BasketRequest());
 
             // Assert;
             result.Should().NotBeNull();
