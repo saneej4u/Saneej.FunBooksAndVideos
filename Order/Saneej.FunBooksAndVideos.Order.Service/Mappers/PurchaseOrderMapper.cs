@@ -1,10 +1,11 @@
-﻿using Saneej.FunBooksAndVideos.Service.Models;
+﻿using Saneej.FunBooksAndVideos.Data.Entities;
+using Saneej.FunBooksAndVideos.Service.Models;
 
 namespace Saneej.FunBooksAndVideos.Service.Mappers
 {
     public class PurchaseOrderMapper : IPurchaseOrderMapper
     {
-        public PurchaseOrderResponse MapToPurchaseOrderResponseFromEntity(Data.Entities.PurchaseOrder purchaseOrderEntity)
+        public PurchaseOrderResponse MapToPurchaseOrderResponse(Data.Entities.PurchaseOrder purchaseOrderEntity)
         {
             return new PurchaseOrderResponse
             {
@@ -28,6 +29,31 @@ namespace Saneej.FunBooksAndVideos.Service.Mappers
                 UnitPrice = purchaseOrderLineEntity.UnitPrice,
                 IsPhysicalProduct = purchaseOrderLineEntity.IsPhysicalProduct
             };
+        }
+
+        public PurchaseOrderLine MapToPurchaseOrderLine(ProductViewModel productItem, int quantity)
+        {
+            return new PurchaseOrderLine
+            {
+                ProductId = productItem.ProductId,
+                Quantity = quantity,
+                IsPhysicalProduct = productItem.IsPhysicalProduct,
+                ProductTypeCode = productItem.ProductTypeCode,
+                UnitPrice = productItem.Price
+            };
+        }
+
+        public Data.Entities.PurchaseOrder MapToPurchaseOrder(List<PurchaseOrderLine> orderLines, string orderStatus, decimal orderTotal, int customerId)
+        {
+            var order = new Data.Entities.PurchaseOrder
+            {
+                CustomerId = customerId,
+                Status = orderStatus,
+                PurchaseOrderLines = orderLines,
+                Total = orderTotal,
+            };
+
+            return order;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Saneej.FunBooksAndVideos.Order.Repository.Commands.PurchaseOrder
         {
             _dbContext = dbSet;
         }
-        public async Task AddOrder(Data.Entities.PurchaseOrder order)
+        public async Task AddPurchaseOrder(Data.Entities.PurchaseOrder order)
         {
             await _dbContext.AddAsync(order);
         }

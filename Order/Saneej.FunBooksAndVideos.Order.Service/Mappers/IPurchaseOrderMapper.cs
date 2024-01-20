@@ -1,9 +1,12 @@
-﻿using Saneej.FunBooksAndVideos.Service.Models;
+﻿using Saneej.FunBooksAndVideos.Data.Entities;
+using Saneej.FunBooksAndVideos.Service.Models;
 
 namespace Saneej.FunBooksAndVideos.Service.Mappers
 {
     public interface IPurchaseOrderMapper
     {
-        PurchaseOrderResponse MapToPurchaseOrderResponseFromEntity(Data.Entities.PurchaseOrder purchaseOrderEntity);
+        PurchaseOrderResponse MapToPurchaseOrderResponse(Data.Entities.PurchaseOrder purchaseOrderEntity);
+        PurchaseOrderLine MapToPurchaseOrderLine(ProductViewModel productItem, int quantity);
+        Data.Entities.PurchaseOrder MapToPurchaseOrder(List<PurchaseOrderLine> orderLines, string orderStatus, decimal orderTotal, int customerId);
     }
 }

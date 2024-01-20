@@ -52,7 +52,7 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
             // Assert;
             result.Should().NotBeNull();
             result.Data.Should().BeNull();
-            
+
             result.IsNotFound.Should().BeTrue();
             result.HasError.Should().BeTrue();
             result.ErrorMessage.Should().Be("Invalid call - no basket exist");
@@ -80,6 +80,8 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
         [Test]
         public async Task ProcessOrder_With_Product_NotMatches_BasketItems_Returns_ClientError()
         {
+            // Arrange
+
             var basketRequest = _fixture.Create<BasketRequest>();
             var productId = 1;
             basketRequest.BasketItems.ForEach(bi =>
@@ -91,14 +93,6 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
 
             // Mock HTTP Client call
             _integrationHttpServiceStub.PostAsync<List<ProductViewModel>>(default, default, default).ReturnsForAnyArgs(productViewModels);
-
-            //var codes = new List<string> { ProductTypeConstants.BOOK_MEMBERSHIP, ProductTypeConstants.VIDEO_MEMBERSHIP, ProductTypeConstants.PREMIUM_MEMBERSHIP };
-            //var purchaseOrderLines = _fixture.Build<PurchaseOrderLineResponse>();
-            //var orderLineResponses = codes.Select(x => purchaseOrderLines.With(x => x.ProductTypeCode, x).Create());
-
-            //var purchaseOrderResponse = _fixture.Create<PurchaseOrderResponse>();
-            //purchaseOrderResponse.PurchaseOrderLines.AddRange(orderLineResponses);
-            //_purchaseOrderMapperStub.MapToPurchaseOrderResponseFromEntity(default).ReturnsForAnyArgs(purchaseOrderResponse);
 
             // Act
             var result = await _sut.ProcessOrder(basketRequest);
@@ -118,6 +112,7 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
         [Test]
         public async Task ProcessOrder_With_Default_Basket_Returns_OrderResponse()
         {
+            // Arrange
             var basketRequest = _fixture.Create<BasketRequest>();
             var productId = 1;
             basketRequest.BasketItems.ForEach(bi =>
@@ -132,11 +127,18 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
 
             var codes = new List<string> { ProductTypeConstants.BOOK_MEMBERSHIP, ProductTypeConstants.VIDEO_MEMBERSHIP, ProductTypeConstants.PREMIUM_MEMBERSHIP };
             var purchaseOrderLines = _fixture.Build<PurchaseOrderLineResponse>();
-            var orderLineResponses = codes.Select(x => purchaseOrderLines.With(x => x.ProductTypeCode, x).Create());
+
+            foreach (var productViewModel in productViewModels)
+            {
+                _purchaseOrderMapperStub.MapToPurchaseOrderLine(productViewModel, 1).ReturnsForAnyArgs(new Data.Entities.PurchaseOrderLine());
+            }
 
             var purchaseOrderResponse = _fixture.Create<PurchaseOrderResponse>();
+            var orderLineResponses = codes.Select(x => purchaseOrderLines.With(x => x.ProductTypeCode, x).Create());
             purchaseOrderResponse.PurchaseOrderLines.AddRange(orderLineResponses);
-            _purchaseOrderMapperStub.MapToPurchaseOrderResponseFromEntity(default).ReturnsForAnyArgs(purchaseOrderResponse);
+            _purchaseOrderMapperStub.MapToPurchaseOrderResponse(default).ReturnsForAnyArgs(purchaseOrderResponse);
+
+            _purchaseOrderMapperStub.MapToPurchaseOrder(default, default, default, default).ReturnsForAnyArgs(new Data.Entities.PurchaseOrder());
 
             // Act
             var result = await _sut.ProcessOrder(basketRequest);

@@ -1,7 +1,7 @@
 ﻿using Saneej.FunBooksAndVideos.Data.Entities;
 using Saneej.FunBooksAndVideos.Order.Repository.UnitOfWork;
+using Saneej.FunBooksAndVideos.Service.Constants;
 using Saneej.FunBooksAndVideos.Service.Customer;
-using Saneej.FunBooksAndVideos.Service.Extensions;
 using Saneej.FunBooksAndVideos.Service.Mappers;
 using Saneej.FunBooksAndVideos.Service.Models;
 using Saneej.FunBooksAndVideos.Service.Services.Integration;
@@ -46,7 +46,7 @@ namespace Saneej.FunBooksAndVideos.Service.PurchaseOrder
 
                 _unitOfWork.BeginTransaction();
 
-                //Get all the products by id from microservice
+                //Get all the products by ids from Product microservice - calling using HttpClient
                 var products = await GetAllFromProductService<ProductViewModel>(basket.BasketItems);
 
                 var purchaseOrderLines = new List<PurchaseOrderLine>();
@@ -57,7 +57,7 @@ namespace Saneej.FunBooksAndVideos.Service.PurchaseOrder
 
                     if (product != null)
                     {
-                        var orderLine = product.ToPurchaseOrderLineModel(basketItem.Quantity); // TODO: Convert to mapper
+                        var orderLine = _purchaseOrderMapper.MapToPurchaseOrderLine(product, basketItem.Quantity);
                         purchaseOrderLines.Add(orderLine);
                     }
                 }
@@ -67,10 +67,11 @@ namespace Saneej.FunBooksAndVideos.Service.PurchaseOrder
                     return ResponseWrapper.CreateClientError("Products are out of stock.");
                 }
 
-                // TODO: Create an Order - Covert to mapper
-                var orderEntity = purchaseOrderLines.ToCreateOrderModel(basket.CustomerId);
+                var total = purchaseOrderLines.Sum(item => item.UnitPrice * item.Quantity);
 
-                await _unitOfWork.PurchaseOrderCommandRepository.AddOrder(orderEntity);
+                var purchaseOrder = _purchaseOrderMapper.MapToPurchaseOrder(purchaseOrderLines, PurchaseOrderConstants.OrderPlaced, total, basket.CustomerId);
+
+                await _unitOfWork.PurchaseOrderCommandRepository.AddPurchaseOrder(purchaseOrder);
 
                 await _unitOfWork.SaveChanges();
 
@@ -79,14 +80,14 @@ namespace Saneej.FunBooksAndVideos.Service.PurchaseOrder
                 // BR1.If the purchase order contains a membership, it has to be activated in the customer account immediately.
                 // Option 1 : Send a message to ServiceBus, which will be consumed by another Shipping Microservice 
                 // Option 2: See below implementation
-                await _customerService.ActivateMembership(orderEntity.CustomerId, orderEntity.PurchaseOrderId);
+                await _customerService.ActivateMembership(purchaseOrder.CustomerId, purchaseOrder.PurchaseOrderId);
 
                 // BR2.If the purchase order contains a physical product a shipping slip has to be generated.
                 // Option 1 : Send a message to ServiceBus, which will be consumed by another Shipping Microservice 
                 // Option 2: See below implementation
-                await _shippingService.GenerateShippingSlip(orderEntity.CustomerId, orderEntity.PurchaseOrderId);
+                await _shippingService.GenerateShippingSlip(purchaseOrder.CustomerId, purchaseOrder.PurchaseOrderId);
 
-                var purchaseOrderResponse = _purchaseOrderMapper.MapToPurchaseOrderResponseFromEntity(orderEntity);
+                var purchaseOrderResponse = _purchaseOrderMapper.MapToPurchaseOrderResponse(purchaseOrder);
                 return ResponseWrapper.CreateSuccess(purchaseOrderResponse);
             }
             catch (Exception)

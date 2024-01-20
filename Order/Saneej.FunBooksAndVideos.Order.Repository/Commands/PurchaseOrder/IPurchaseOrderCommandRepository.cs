@@ -2,6 +2,6 @@
 {
     public interface IPurchaseOrderCommandRepository
     {
-        Task AddOrder(Data.Entities.PurchaseOrder order);
+        Task AddPurchaseOrder(Data.Entities.PurchaseOrder order);
     }
 }
