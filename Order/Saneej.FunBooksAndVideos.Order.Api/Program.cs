@@ -1,4 +1,8 @@
+using Saneej.FunBooksAndVideos.Order.Api.Middleware;
+using Saneej.FunBooksAndVideos.Order.Api.Modules;
+
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 
@@ -6,6 +10,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services
+    .AddFunBooksAndVideosModule(builder.Configuration);
+
 
 var app = builder.Build();
 
@@ -15,6 +23,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 

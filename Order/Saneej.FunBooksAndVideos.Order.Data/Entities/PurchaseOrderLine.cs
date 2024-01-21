@@ -9,6 +9,6 @@
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public bool IsPhysicalProduct { get; set; }
-        public PurchaseOrder PurchaseOrder { get; set; }
+        //public PurchaseOrder PurchaseOrder { get; set; }
     }
 }

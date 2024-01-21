@@ -50,13 +50,18 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
             var result = await _sut.ProcessOrder(null);
 
             // Assert;
+
+            // Should not call database changes
+            await _unitOfWorkStub.PurchaseOrderCommandRepository.DidNotReceive().AddPurchaseOrder(new Data.Entities.PurchaseOrder());
+            await _unitOfWorkStub.DidNotReceive().SaveChanges();
+
             result.Should().NotBeNull();
             result.Data.Should().BeNull();
 
-            result.IsNotFound.Should().BeTrue();
             result.HasError.Should().BeTrue();
             result.ErrorMessage.Should().Be("Invalid call - no basket exist");
 
+            result.IsNotFound.Should().BeTrue();
             result.IsClientError.Should().BeFalse();
         }
 
@@ -67,13 +72,18 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
             var result = await _sut.ProcessOrder(new BasketRequest());
 
             // Assert;
+
+            // Should not call database changes
+            await _unitOfWorkStub.PurchaseOrderCommandRepository.DidNotReceive().AddPurchaseOrder(new Data.Entities.PurchaseOrder());
+            await _unitOfWorkStub.DidNotReceive().SaveChanges();
+
             result.Should().NotBeNull();
             result.Data.Should().BeNull();
 
-            result.IsNotFound.Should().BeFalse();
-
             result.HasError.Should().BeTrue();
             result.ErrorMessage.Should().Be("Basket is empty, cannot process the order");
+
+            result.IsNotFound.Should().BeFalse();
             result.IsClientError.Should().BeTrue();
         }
 
@@ -99,13 +109,18 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
 
 
             // Assert;
+
+            // Should not call database changes
+            await _unitOfWorkStub.PurchaseOrderCommandRepository.DidNotReceive().AddPurchaseOrder(new Data.Entities.PurchaseOrder());
+            await _unitOfWorkStub.DidNotReceive().SaveChanges();
+
             result.Should().NotBeNull();
             result.Data.Should().BeNull();
 
-            result.IsNotFound.Should().BeFalse();
-
             result.HasError.Should().BeTrue();
             result.ErrorMessage.Should().Be("Products are out of stock.");
+
+            result.IsNotFound.Should().BeFalse();
             result.IsClientError.Should().BeTrue();
         }
 
@@ -144,8 +159,16 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
             var result = await _sut.ProcessOrder(basketRequest);
 
             // Assert;
+
+
+            // Should call database changes
+            await _unitOfWorkStub.PurchaseOrderCommandRepository.ReceivedWithAnyArgs(1).AddPurchaseOrder(new Data.Entities.PurchaseOrder());
+            await _unitOfWorkStub.Received(1).SaveChanges();
+
             result.Should().NotBeNull();
             result.Data.Should().NotBeNull();
+
+            result.HasError.Should().BeFalse();
             result.IsNotFound.Should().BeFalse();
             result.IsClientError.Should().BeFalse();
         }

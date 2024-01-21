@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Saneej.FunBooksAndVideos.Order.Api.Utils;
 using Saneej.FunBooksAndVideos.Service.Models;
 using Saneej.FunBooksAndVideos.Service.PurchaseOrder;
 
@@ -21,9 +22,10 @@ namespace Saneej.FunBooksAndVideos.Api.Controllers
 
         [HttpPost]
         [Route("process")]
-        public async Task<ActionResult<bool>> ProcessPurchaseOrderAsync([FromBody] BasketRequest basket)
+        public async Task<ActionResult<ResponseWrapper<bool>>> ProcessPurchaseOrderAsync([FromBody] BasketRequest basket)
         {
-            return Ok(await _purchaseOrderService.ProcessOrder(basket));
+            var result = await _purchaseOrderService.ProcessOrder(basket);
+            return result.ToHttpResponse();
         }
     }
 }

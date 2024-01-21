@@ -1,5 +1,6 @@
 ﻿using Saneej.FunBooksAndVideos.Data.Entities;
 using Saneej.FunBooksAndVideos.Order.Repository.UnitOfWork;
+using Saneej.FunBooksAndVideos.Order.Service.Models;
 using Saneej.FunBooksAndVideos.Service.Constants;
 using Saneej.FunBooksAndVideos.Service.Customer;
 using Saneej.FunBooksAndVideos.Service.Mappers;
@@ -101,9 +102,12 @@ namespace Saneej.FunBooksAndVideos.Service.PurchaseOrder
         {
             var productIds = basketItems.Select(b => b.ProductId).ToList();
 
-            //TODO : make it configurable
-            var path = "";
-            var baseUrl = "";
+            //TODO : Inject via constructor 
+            // Reading from app config
+            var _funBooksAndVideosOptions = new FunBooksAndVideosOptions();
+
+            var path = _funBooksAndVideosOptions.ProductServicePathUrl;
+            var baseUrl = _funBooksAndVideosOptions.BaseUrl;
 
             var response = await _integrationHttpService.PostAsync<List<ProductViewModel>>($"{baseUrl}/{path}", productIds);
 
