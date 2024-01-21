@@ -1,8 +1,6 @@
-using Saneej.FunBooksAndVideos.Order.Api.Middleware;
 using Saneej.FunBooksAndVideos.Order.Api.Modules;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 // Add services to the container.
 
@@ -12,7 +10,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services
-    .AddFunBooksAndVideosModule(builder.Configuration);
+    .AddFunBooksAndVideosModule(builder.Configuration)
+    .AddHttpClient(); ;
 
 
 var app = builder.Build();
@@ -24,7 +23,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<GlobalExceptionMiddleware>();
+//app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 

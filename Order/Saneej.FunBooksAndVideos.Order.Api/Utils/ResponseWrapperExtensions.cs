@@ -9,12 +9,12 @@ namespace Saneej.FunBooksAndVideos.Order.Api.Utils
         {
             if (response.IsNotFound)
             {
-                return new NotFoundObjectResult(response.ErrorMessage);
+                return new NotFoundObjectResult(response);
             }
 
             if (response.IsClientError)
             {
-                return new BadRequestObjectResult(response.ErrorMessage);
+                return new BadRequestObjectResult(response);
             }
 
             if (response.IsUnAuthorized)
@@ -29,12 +29,12 @@ namespace Saneej.FunBooksAndVideos.Order.Api.Utils
         {
             if (response.IsNotFound)
             {
-                return new NotFoundObjectResult(response.ErrorMessage);
+                return new NotFoundObjectResult(response);
             }
 
             if (response.IsClientError)
             {
-                return new BadRequestObjectResult(response.ErrorMessage);
+                return new BadRequestObjectResult(response);
             }
 
             if (response.IsUnAuthorized)

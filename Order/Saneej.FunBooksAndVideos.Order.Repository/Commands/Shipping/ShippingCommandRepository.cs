@@ -1,14 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Saneej.FunBooksAndVideos.Data.Context;
 
 namespace Saneej.FunBooksAndVideos.Order.Repository.Commands.Shipping
 {
     public class ShippingCommandRepository : IShippingCommandRepository
     {
-        private readonly DbSet<Data.Entities.Shipping> _dbContext;
+        private readonly FunBooksAndVideosContext _dbContext;
 
-        public ShippingCommandRepository(DbSet<Data.Entities.Shipping> dbSet)
+        public ShippingCommandRepository(FunBooksAndVideosContext context)
         {
-            _dbContext = dbSet;
+            _dbContext = context;
         }
 
         public async Task AddShippings(List<Data.Entities.Shipping> shippings)

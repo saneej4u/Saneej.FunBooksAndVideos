@@ -14,14 +14,14 @@ namespace Saneej.FunBooksAndVideos.Order.Repository.UnitOfWork
             Context = context;
 
             // Purchase order
-            PurchaseOrderCommandRepository = new PurchaseOrderCommandRepository(context.PurchaseOrders);
-            PurchaseOrderQueryRepository = new PurchaseOrderQueryRepository(context.PurchaseOrders);
+            PurchaseOrderCommandRepository = new PurchaseOrderCommandRepository(context);
+            PurchaseOrderQueryRepository = new PurchaseOrderQueryRepository(context);
 
             // Shipping
-            ShippingCommandRepository = new ShippingCommandRepository(context.Shippings);
+            ShippingCommandRepository = new ShippingCommandRepository(context);
 
             // Membership
-            MembershipCommandRepository = new MembershipCommandRepository(context.Memberships);
+            MembershipCommandRepository = new MembershipCommandRepository(context);
         }
         public FunBooksAndVideosContext ReadContext => Context;
 

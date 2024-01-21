@@ -99,7 +99,7 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
                 bi.ProductId = productId + 1;
             });
 
-            var productViewModels = basketRequest.BasketItems.Select(bi => new ProductViewModel(0, "", "", "", "", 12M, 2, true)).ToList();
+            var productViewModels = basketRequest.BasketItems.Select(bi => new ProductViewModel { ProductId = 0, IsPhysicalProduct = true }).ToList();
 
             // Mock HTTP Client call
             _integrationHttpServiceStub.PostAsync<List<ProductViewModel>>(default, default, default).ReturnsForAnyArgs(productViewModels);
@@ -135,7 +135,7 @@ namespace Saneej.FunBooksAndVideos.Services.Tests.PurchaseOrder
                 bi.ProductId = productId + 1;
             });
 
-            var productViewModels = basketRequest.BasketItems.Select(bi => new ProductViewModel(bi.ProductId, "", "", "", "", 12M, 2, true)).ToList();
+            var productViewModels = basketRequest.BasketItems.Select(bi => new ProductViewModel { ProductId = bi.ProductId, IsPhysicalProduct = true }).ToList();
 
             // Mock HTTP Client call
             _integrationHttpServiceStub.PostAsync<List<ProductViewModel>>(default, default, default).ReturnsForAnyArgs(productViewModels);
